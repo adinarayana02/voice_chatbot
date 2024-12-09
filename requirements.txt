@@ -1,0 +1,14 @@
+streamlit
+openai
+audio_recorder_streamlit
+streamlit-float
+python-dotenv
+openai-whisper
+gtts
+pydub
+groq
+scipy
+flask
+streamlit-webrtc
+SpeechRecognition
+pyttsx3
