@@ -12,3 +12,4 @@ flask
 streamlit-webrtc
 SpeechRecognition
 pyttsx3
+gunicorn
