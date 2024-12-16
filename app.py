@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # OpenAI API configuration
-openai.api_key = "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"
+openai_api_key = "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"
 
 # Conversational context storage
 conversation_history = []
