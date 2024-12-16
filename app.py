@@ -1,6 +1,7 @@
 import os
 import io
 import logging
+import openai
 import requests
 from flask import Flask, render_template, request, jsonify, send_file
 import pyttsx3
@@ -12,9 +13,8 @@ app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Groq API configuration
-API_KEY = "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"
-MODEL = "llama3-8b-8192"
+# OpenAI API configuration
+openai.api_key = "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"
 
 # Conversational context storage
 conversation_history = []
@@ -42,7 +42,10 @@ def transcribe_audio():
             audio_data = recognizer.record(source)
             text = recognizer.recognize_google(audio_data)
 
-        return jsonify({'transcription': text})
+        # Summarize the transcribed text
+        summary = summarize_text(text)
+
+        return jsonify({'transcription': text, 'summary': summary})
 
     except sr.UnknownValueError:
         return jsonify({'error': 'Could not understand audio'}), 400
@@ -76,31 +79,22 @@ def generate_response():
                         "content": "You are a helpful, articulate, and friendly AI assistant. Provide clear, concise, and informative responses."}
                    ] + conversation_history
 
-        # Call Groq API for response
+        # Call OpenAI API for response
         try:
-            response = requests.post(
-                "https://api.groq.com/openai/v1/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {API_KEY}",
-                    "Content-Type": "application/json"
-                },
-                json={
-                    "model": MODEL,
-                    "messages": messages,
-                    "temperature": 0.7,  # Add some creativity
-                    "max_tokens": 300,  # Limit response length
-                }
+            response = openai.ChatCompletion.create(
+                model="gpt-4",  # Use gpt-3.5-turbo if GPT-4 is unavailable
+                messages=messages,
+                temperature=0.7,  # Add some creativity
+                max_tokens=300,  # Limit response length
             )
-            response.raise_for_status()  # Raise an exception for bad responses
-        except requests.RequestException as e:
+        except Exception as e:
             logger.error(f"API request error: {e}")
             return jsonify({'error': 'Failed to connect to AI service'}), 500
 
         # Extract response text
         try:
-            response_data = response.json()
-            ai_response = response_data['choices'][0]['message']['content'].strip()
-        except (KeyError, IndexError) as e:
+            ai_response = response.choices[0].message.content.strip()
+        except (AttributeError, IndexError) as e:
             logger.error(f"Response parsing error: {e}")
             return jsonify({'error': 'Failed to parse AI response'}), 500
 
@@ -127,9 +121,13 @@ def generate_response():
             # Continue without audio if TTS fails
             audio_file = None
 
-        # Return response with audio path
+        # Summarize the AI response
+        summary = summarize_text(ai_response)
+
+        # Return response with audio path and summary
         return jsonify({
             'text': ai_response,
+            'summary': summary,
             'audio_url': f'/download_audio/{audio_file}' if audio_file else None
         })
 
@@ -153,6 +151,84 @@ def reset_conversation():
     conversation_history.clear()
     return jsonify({'status': 'Conversation reset successfully'})
 
+
+@app.route('/medical_summary', methods=['POST'])
+def medical_summary():
+    try:
+        # Get the medical transcript from the request
+        transcript = request.json.get('transcript', '').strip()
+
+        if not transcript:
+            return jsonify({'error': 'No transcript provided'}), 400
+
+        # Prepare the prompt for the medical summary
+        prompt = f"""
+        Organize the following medical transcript into the predefined sections:
+
+        Sections:
+        1. Medical Specialty
+        2. CHIEF COMPLAINT
+        3. Purpose of visit
+        4. HISTORY and Physical
+           - PAST MEDICAL HISTORY
+           - PAST SURGICAL HISTORY
+           - ALLERGIES History
+           - Social History
+           - REVIEW OF SYSTEMS
+        5. PHYSICAL EXAMINATION
+           - GENERAL
+           - Vitals
+           - ENT
+           - Head
+           - Neck
+           - Chest
+           - Heart
+           - Abdomen
+           - Pelvic
+           - Extremities
+
+        Transcript:
+        {transcript}
+
+        Provide a structured summary in the above format.
+        """
+
+        # Call OpenAI API for the medical summary
+        try:
+            response = openai.ChatCompletion.create(
+                model="gpt-4",  # Use gpt-3.5-turbo if GPT-4 is unavailable
+                messages=[
+                    {"role": "system", "content": "You are a helpful medical assistant."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.5,
+                max_tokens=3000  # Adjust max_tokens based on the expected size of the summary
+            )
+        except Exception as e:
+            logger.error(f"API request error: {e}")
+            return jsonify({'error': 'Failed to connect to AI service'}), 500
+
+        # Extract and return the structured summary
+        try:
+            structured_summary = response.choices[0].message.content.strip()
+        except (AttributeError, IndexError) as e:
+            logger.error(f"Response parsing error: {e}")
+            return jsonify({'error': 'Failed to parse AI response'}), 500
+
+        # Summarize the structured summary
+        summary = summarize_text(structured_summary)
+
+        return jsonify({'summary': structured_summary, 'summary_of_summary': summary})
+
+    except Exception as e:
+        logger.error(f"Unexpected error in medical_summary: {e}")
+        return jsonify({'error': 'An unexpected error occurred'}), 500
+
+
+def summarize_text(text):
+    # This is a placeholder for a text summarization function
+    # Implement a real summarization logic here
+    return "This is a summary of the text."
 
 if __name__ == '__main__':
     app.run(debug=True)
