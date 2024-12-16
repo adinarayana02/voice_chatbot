@@ -1,287 +1,364 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Voice Assistant</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Medical Transcription Assistant</title>
     <style>
-        body {
-            font-family: 'Roboto', Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            color: #fff;
-        }
+      body {
+        font-family: "Roboto", Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(135deg, #1e3c72, #2a5298);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        color: #fff;
+      }
 
-        .container {
-            background: linear-gradient(145deg, #ffffff, #f1f1f1);
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-            max-width: 700px;
-            width: 100%;
-            text-align: center;
-        }
+      .container {
+        background: linear-gradient(145deg, #ffffff, #f1f1f1);
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        max-width: 700px;
+        width: 100%;
+        text-align: center;
+      }
 
+      h1 {
+        margin-bottom: 20px;
+        font-size: 2.2rem;
+        color: #1e3c72;
+      }
+
+      textarea {
+        width: 100%;
+        min-height: 100px;
+        margin-bottom: 15px;
+        padding: 15px;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        background: #f9f9f9;
+        box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.1);
+        resize: vertical;
+      }
+
+      textarea:focus {
+        outline: none;
+        box-shadow: 0 0 5px #2a5298;
+      }
+
+      .button-group {
+        display: flex;
+        justify-content: space-between;
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+
+      button {
+        flex: 1;
+        padding: 12px 20px;
+        background: linear-gradient(90deg, #36d1dc, #5b86e5);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease-in-out;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      }
+
+      button:hover {
+        background: linear-gradient(90deg, #5b86e5, #36d1dc);
+        transform: scale(1.05);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+      }
+
+      .output-section {
+        margin-top: 20px;
+      }
+
+      .highlighted-response {
+        padding: 15px;
+        background: linear-gradient(135deg, #f0faff, #e8f0fe);
+        border-radius: 10px;
+        box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.1);
+        color: #333;
+        font-size: 1rem;
+        line-height: 1.6;
+        max-height: 200px;
+        overflow-y: auto;
+      }
+
+      .highlighted-response .word {
+        transition: background-color 0.3s ease;
+        padding: 2px 4px;
+        border-radius: 3px;
+      }
+
+      .highlighted-response .word.highlight {
+        background-color: #ffeb3b;
+        font-weight: bold;
+      }
+
+      @media (max-width: 768px) {
         h1 {
-            margin-bottom: 20px;
-            font-size: 2.2rem;
-            color: #1e3c72;
-        }
-
-        textarea {
-            width: 100%;
-            min-height: 100px;
-            margin-bottom: 15px;
-            padding: 15px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            background: #f9f9f9;
-            box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.1);
-            resize: vertical;
-        }
-
-        textarea:focus {
-            outline: none;
-            box-shadow: 0 0 5px #2a5298;
-        }
-
-        .button-group {
-            display: flex;
-            justify-content: space-between;
-            gap: 15px;
-            margin-bottom: 20px;
+          font-size: 1.8rem;
         }
 
         button {
-            flex: 1;
-            padding: 12px 20px;
-            background: linear-gradient(90deg, #36d1dc, #5b86e5);
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease-in-out;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+          font-size: 0.9rem;
+          padding: 10px;
         }
 
-        button:hover {
-            background: linear-gradient(90deg, #5b86e5, #36d1dc);
-            transform: scale(1.05);
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+        textarea {
+          font-size: 0.9rem;
         }
-
-        .output-section {
-            margin-top: 20px;
-        }
-
-        .highlighted-response {
-            padding: 15px;
-            background: linear-gradient(135deg, #f0faff, #e8f0fe);
-            border-radius: 10px;
-            box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.1);
-            color: #333;
-            font-size: 1rem;
-            line-height: 1.6;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-
-        .highlighted-response .word {
-            transition: background-color 0.3s ease;
-            padding: 2px 4px;
-            border-radius: 3px;
-        }
-
-        .highlighted-response .word.highlight {
-            background-color: #ffeb3b;
-            font-weight: bold;
-        }
-
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 1.8rem;
-            }
-
-            button {
-                font-size: 0.9rem;
-                padding: 10px;
-            }
-
-            textarea {
-                font-size: 0.9rem;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <h1>AI Voice Assistant</h1>
-        <div class="input-section">
-            <textarea id="input-text" placeholder="Type your message or use voice input" aria-label="Type your message"></textarea>
-            <div class="button-group">
-                <button id="record-btn" aria-label="Start voice recording">🎙️ Record</button>
-                <button id="submit-btn" aria-label="Send your message">Send</button>
-                <button id="reset-btn" aria-label="Reset the conversation">🔄 Reset</button>
-                <button id="cancel-btn" aria-label="Cancel the recording" style="display:none;">❌ Cancel</button>
-            </div>
+      <h1>Medical Transcription Assistant</h1>
+      <div class="input-section">
+        <input
+          type="file"
+          id="audio-file"
+          accept="audio/*"
+          style="display: none"
+        />
+
+        <textarea
+          id="input-text"
+          placeholder="Type your medical notes or use voice input"
+          aria-label="Type your medical notes"
+        ></textarea>
+        <div class="button-group">
+          <button id="record-btn" aria-label="Start voice recording">
+            🎙️ Record
+          </button>
+          <button
+            class="upload-label"
+            style="
+              background-color: #007bff;
+              color: white;
+              padding: 10px 20px;
+              border: none;
+              border-radius: 20px;
+              cursor: pointer;
+            "
+          >
+            Upload Audio File
+          </button>
+          <button id="summarize-btn" aria-label="summarize your medical notes">
+            summarize
+          </button>
+          <button id="reset-btn" aria-label="Reset the conversation">
+            🔄 Reset
+          </button>
+          <button
+            id="cancel-btn"
+            aria-label="Cancel the recording"
+            style="display: none"
+          >
+            ❌ Cancel
+          </button>
         </div>
-        <div class="output-section">
-            <textarea id="output-text" readonly placeholder="AI Response"></textarea>
-        </div>
-    </div>
+      </div>
+      <div class="output-section">
+        <textarea
+          id="output-text"
+          readonly
+          placeholder="Transcription"
+        ></textarea>
+      </div>
 
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const recordBtn = document.getElementById('record-btn');
-        const submitBtn = document.getElementById('submit-btn');
-        const resetBtn = document.getElementById('reset-btn');
-        const cancelBtn = document.getElementById('cancel-btn'); // Cancel button reference
-        const inputText = document.getElementById('input-text');
-        const outputText = document.getElementById('output-text');
-        const responseContainer = document.querySelector('.output-section');
+      document.addEventListener("DOMContentLoaded", () => {
+        const recordBtn = document.getElementById("record-btn");
+        const summariseBtn = document.getElementById("summarise-btn"); // Renamed button reference
+        const resetBtn = document.getElementById("reset-btn");
+        const cancelBtn = document.getElementById("cancel-btn"); // Cancel button reference
+        const inputText = document.getElementById("input-text");
+        const outputText = document.getElementById("output-text");
+        const responseContainer = document.querySelector(".output-section");
+        const audioFile = document.getElementById("audio-file");
 
         // Speech Recognition Setup
         const recognition = new (window.SpeechRecognition ||
-                                    window.webkitSpeechRecognition)();
+          window.webkitSpeechRecognition)();
         recognition.continuous = false;
         recognition.interimResults = false;
-        recognition.lang = 'en-US';
+        recognition.lang = "en-US";
 
         // Record Button Handler
-        recordBtn.addEventListener('click', () => {
-            recognition.start();
-            recordBtn.textContent = '🎙️ Listening...';
-            cancelBtn.style.display = 'inline-block'; // Show cancel button
+        recordBtn.addEventListener("click", () => {
+          recognition.start();
+          recordBtn.textContent = "🎙️ Listening...";
+          cancelBtn.style.display = "inline-block"; // Show cancel button
         });
 
         // Cancel Button Handler
-        cancelBtn.addEventListener('click', () => {
-            recognition.stop();
-            recordBtn.textContent = '🎙️ Record';
-            cancelBtn.style.display = 'none'; // Hide cancel button
+        cancelBtn.addEventListener("click", () => {
+          recognition.stop();
+          recordBtn.textContent = "🎙️ Record";
+          cancelBtn.style.display = "none"; // Hide cancel button
         });
 
         // Recognition Result Handler
         recognition.onresult = (event) => {
-            const transcript = event.results[0][0].transcript;
-            inputText.value = transcript;
-            recordBtn.textContent = '🎙️ Record';
-            cancelBtn.style.display = 'none'; // Hide cancel button after recording
+          const transcript = event.results[0][0].transcript;
+          inputText.value = transcript;
+          recordBtn.textContent = "🎙️ Record";
+          cancelBtn.style.display = "none"; // Hide cancel button after recording
         };
 
         recognition.onerror = (event) => {
-            console.error('Speech recognition error:', event.error);
-            recordBtn.textContent = '🎙️ Record';
-            cancelBtn.style.display = 'none'; // Hide cancel button
+          console.error("Speech recognition error:", event.error);
+          recordBtn.textContent = "🎙️ Record";
+          cancelBtn.style.display = "none"; // Hide cancel button
         };
 
         // Function to speak text with word highlighting
         function speakWithHighlighting(text) {
-            // Remove any existing highlighted text
-            responseContainer.innerHTML = `
+          // Remove any existing highlighted text
+          responseContainer.innerHTML = `
                 <div id="highlighted-text" class="highlighted-response"></div>
             `;
-            const highlightedTextDiv = document.getElementById('highlighted-text');
+          const highlightedTextDiv =
+            document.getElementById("highlighted-text");
 
-            // Split text into words
-            const words = text.split(/\s+/);
+          // Split text into words
+          const words = text.split(/\s+/);
 
-            // Speech Synthesis
-            const utterance = new SpeechSynthesisUtterance(text);
+          // Speech Synthesis
+          const utterance = new SpeechSynthesisUtterance(text);
 
-            // Track word index for highlighting
-            let currentWordIndex = 0;
+          // Track word index for highlighting
+          let currentWordIndex = 0;
 
-            // Prepare HTML with spans for each word
-            highlightedTextDiv.innerHTML = words.map((word, index) =>
+          // Prepare HTML with spans for each word
+          highlightedTextDiv.innerHTML = words
+            .map(
+              (word, index) =>
                 `<span id="word-${index}" class="word">${word}</span>`
-            ).join(' ');
+            )
+            .join(" ");
 
-            // Event listeners for speech synthesis
-            utterance.onboundary = (event) => {
-                if (event.name === 'word') {
-                    // Remove highlight from previous word
-                    if (currentWordIndex > 0) {
-                        const prevWord = document.getElementById(`word-${currentWordIndex - 1}`);
-                        if (prevWord) prevWord.classList.remove('highlight');
-                    }
+          // Event listeners for speech synthesis
+          utterance.onboundary = (event) => {
+            if (event.name === "word") {
+              // Remove highlight from previous word
+              if (currentWordIndex > 0) {
+                const prevWord = document.getElementById(
+                  `word-${currentWordIndex - 1}`
+                );
+                if (prevWord) prevWord.classList.remove("highlight");
+              }
 
-                    // Highlight current word
-                    const currentWord = document.getElementById(`word-${currentWordIndex}`);
-                    if (currentWord) {
-                        currentWord.classList.add('highlight');
-                        currentWord.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                    }
+              // Highlight current word
+              const currentWord = document.getElementById(
+                `word-${currentWordIndex}`
+              );
+              if (currentWord) {
+                currentWord.classList.add("highlight");
+                currentWord.scrollIntoView({
+                  behavior: "smooth",
+                  block: "nearest",
+                });
+              }
 
-                    currentWordIndex++;
-                }
-            };
+              currentWordIndex++;
+            }
+          };
 
-            // Speak the text
-            window.speechSynthesis.speak(utterance);
+          // Speak the text
+          window.speechSynthesis.speak(utterance);
         }
 
-        // Submit Button Handler
-        submitBtn.addEventListener('click', async () => {
-            const text = inputText.value.trim();
-            if (!text) return;
+        // Audio File Upload Handler
+        audioFile.addEventListener("change", async () => {
+          const file = audioFile.files[0];
+          const formData = new FormData();
+          formData.append("audio", file);
 
-            try {
-                const response = await fetch('/generate', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ text: text })
-                });
+          try {
+            const response = await fetch("/transcribe", {
+              method: "POST",
+              body: formData,
+            });
 
-                const data = await response.json();
+            const data = await response.json();
 
-                if (data.text) {
-                    // Display text response
-                    outputText.value = data.text;
+            if (data.transcription) {
+              // Display text response
+              outputText.value = data.transcription;
 
-                    // Speak response with word highlighting
-                    speakWithHighlighting(data.text);
-                }
-            } catch (error) {
-                console.error('Error:', error);
+              // Speak response with word highlighting
+              speakWithHighlighting(data.transcription);
             }
+          } catch (error) {
+            console.error("Error:", error);
+          }
+        });
+
+        // Summarise Button Handler
+        summariseBtn.addEventListener("click", async () => {
+          const text = inputText.value.trim();
+          if (!text) return;
+
+          try {
+            const response = await fetch("/summarize", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ text: text }),
+            });
+
+            const data = await response.json();
+
+            if (data.summary) {
+              // Display summary response
+              outputText.value = data.summary;
+
+              // Speak summary response with word highlighting
+              speakWithHighlighting(data.summary);
+            }
+          } catch (error) {
+            console.error("Error:", error);
+          }
         });
 
         // Reset Button Handler
-        resetBtn.addEventListener('click', async () => {
-            // Clear the input and output fields
-            inputText.value = '';
-            outputText.value = '';
-            responseContainer.innerHTML = '';
+        resetBtn.addEventListener("click", async () => {
+          // Clear the input and output fields
+          inputText.value = "";
+          outputText.value = "";
+          responseContainer.innerHTML = "";
 
-            // Reset conversation on the server
-            try {
-                const response = await fetch('/reset', {
-                    method: 'POST'
-                });
+          // Reset conversation on the server
+          try {
+            const response = await fetch("/reset", {
+              method: "POST",
+            });
 
-                const data = await response.json();
+            const data = await response.json();
 
-                if (data.status) {
-                    console.log('Conversation reset successfully.');
-                } else {
-                    console.error('Failed to reset conversation.');
-                }
-            } catch (error) {
-                console.error('Error:', error);
+            if (data.status) {
+              console.log("Conversation reset successfully.");
+            } else {
+              console.error("Failed to reset conversation.");
             }
+          } catch (error) {
+            console.error("Error:", error);
+          }
         });
-    });
-</script>
-</body>
+      });
+    </script>
+  </body>
 </html>
